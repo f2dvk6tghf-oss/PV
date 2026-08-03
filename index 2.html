@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081d33">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Générateur PV">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Générateur PV Police</title>
+<style>
+:root{--bg:#07131f;--card:#10283f;--card2:#091c2d;--text:#f7f9fc;--muted:#aec2d6;--accent:#2f8cff;--accent2:#6cbcff;--ok:#48d49f;--danger:#ff6b6b;--warn:#ffd166;--border:rgba(255,255,255,.12)}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#06111b,#0a2035);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.app{max-width:820px;margin:auto;padding:15px 13px 32px}
+.hero,.card{background:rgba(16,40,63,.98);border:1px solid var(--border);border-radius:22px;box-shadow:0 12px 35px rgba(0,0,0,.22)}
+.hero{padding:21px;margin-bottom:14px;background:linear-gradient(135deg,#0f2f52,#124a7b)}
+h1{margin:0 0 7px;font-size:29px}.sub{color:var(--muted);font-size:14px;line-height:1.4}
+.warn{margin-top:12px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.28);color:#ffe7a8;padding:11px;border-radius:13px;font-size:12px;line-height:1.4}
+.steps{display:flex;gap:7px;overflow:auto;padding:3px 0 12px;margin-bottom:5px}
+.stepDot{min-width:94px;background:#0a1d2e;border:1px solid var(--border);border-radius:999px;padding:8px 11px;color:var(--muted);font-size:12px;text-align:center}
+.stepDot.active{background:#1c5f9d;color:white;border-color:#68baff}
+.card{padding:16px;margin-bottom:13px}.card h2{margin:0 0 14px;font-size:19px}.card h3{font-size:15px;margin:16px 0 10px;color:#dbeaff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.full{grid-column:1/-1}
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:13px;padding:12px;font-size:16px;outline:none}
+textarea{min-height:92px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:flex;align-items:flex-start;gap:9px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px;font-size:14px;line-height:1.3}
+.check input{width:auto;margin-top:2px;transform:scale(1.18);accent-color:var(--accent)}
+.rowActions,.mainActions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+button{border:0;border-radius:14px;padding:14px 12px;font-weight:750;font-size:15px;cursor:pointer}
+.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white}.secondary{background:#173c60;color:white;border:1px solid var(--border)}.ok{background:rgba(72,212,159,.15);color:#9bf2d2;border:1px solid rgba(72,212,159,.3)}.danger{background:rgba(255,107,107,.12);color:#ffc1c1;border:1px solid rgba(255,107,107,.3)}
+.hidden{display:none!important}
+.preview{white-space:pre-wrap;background:#06111c;border:1px solid var(--border);border-radius:15px;padding:17px;min-height:280px;line-height:1.58;font-family:Georgia,"Times New Roman",serif;font-size:15px}
+.preview strong{font-family:Georgia,"Times New Roman",serif}
+.small{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
+.colleague{background:#0a1e31;border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:9px}
+.pill{display:inline-block;background:#0d3151;color:#bdddff;border:1px solid rgba(108,188,255,.25);border-radius:999px;padding:5px 9px;font-size:12px;margin-bottom:8px}
+@media(max-width:650px){.grid,.checks,.mainActions,.rowActions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="hero">
+<h1>Générateur de procès-verbal</h1>
+<div class="sub">PVI ou PV de transport et constatations, construit étape par étape.</div>
+<div class="warn">Outil d’aide à la rédaction. Relire et adapter chaque formulation aux faits réellement constatés, à la procédure et aux instructions de l’OPJ. Ne pas conserver de données nominatives sur un appareil personnel.</div>
+</section>
+
+<div class="steps">
+<div class="stepDot active">1 · Cadre</div><div class="stepDot">2 · Faits</div><div class="stepDot">3 · Interpellation</div><div class="stepDot">4 · Objet / victime</div><div class="stepDot">5 · OPJ / transport</div><div class="stepDot">6 · Génération</div>
+</div>
+
+<section class="card">
+<h2>1. Cadre du procès-verbal</h2>
+<div class="grid">
+<div><label>Type de PV</label><select id="typePv"><option value="pvi">Procès-verbal d’intervention (PVI)</option><option value="transport">PV de transport et constatations</option></select></div>
+<div><label>Indicatif</label><input id="indicatif" placeholder="Ex. B21"></div>
+<div><label>Commune / circonscription</label><input id="commune" value="Gagny"></div>
+<div><label>Date</label><input id="datePv" type="date"></div>
+<div><label>Heure de début</label><input id="heureDebut" type="time"></div>
+<div><label>Heure d’arrivée sur place</label><input id="heureArrivee" type="time"></div>
+<div><label>Origine de la mission</label><select id="origine"><option value="requis par le CIC">CIC</option><option value="agissant d'initiative">Initiative</option><option value="requis par un tiers">Requérant</option><option value="agissant sur instructions de l'OPJ">Instruction OPJ</option></select></div>
+<div class="full"><label>Lieu initial de l’intervention</label><input id="lieuInitial" placeholder="Adresse ou secteur"></div>
+</div>
+
+<h3>Collègues assistant le rédacteur</h3>
+<div id="colleagues"></div>
+<div class="rowActions">
+<button class="secondary" id="addColleague">Ajouter un collègue</button>
+<button class="danger" id="removeColleague">Retirer le dernier</button>
+</div>
+</section>
+
+<section class="card">
+<h2>2. Faits et flagrance</h2>
+<div class="grid">
+<div class="full"><label>Nature de l’infraction / mission</label><input id="nature" placeholder="Ex. vol avec violences, violences volontaires, refus d’obtempérer"></div>
+<div><label>Connaissance des faits</label><select id="connaissance"><option value="appel">Dès l’appel / la réquisition</option><option value="constat">Lors de nos constatations</option><option value="declaration">Après déclaration de la victime ou d’un témoin</option></select></div>
+<div><label>Flagrant délit</label><select id="flagrance"><option value="oui">Oui — articles 53 et suivants CPP</option><option value="non">Non</option></select></div>
+<div class="full"><label>Résumé rapide des faits</label><textarea id="resume" placeholder="En quelques lignes : appel, arrivée sur place, constatations, déclarations utiles, comportement de l’auteur..."></textarea></div>
+</div>
+</section>
+
+<section class="card">
+<h2>3. Blocs procéduraux — contrôle routier</h2>
+<div class="checks">
+<label class="check"><input type="checkbox" id="controleRoutier">Contrôle routier</label>
+<label class="check"><input type="checkbox" id="avertisseursLumineux">Avertisseurs lumineux</label>
+<label class="check"><input type="checkbox" id="avertisseursSonores">Avertisseurs sonores</label>
+<label class="check"><input type="checkbox" id="stationnementVehicule">Véhicule stationné pour contrôle</label>
+<label class="check"><input type="checkbox" id="documentsConduite">Présentation des documents</label>
+<label class="check"><input type="checkbox" id="verificationFichiers">Vérifications fichiers</label>
+</div>
+
+<div id="roadFields" class="hidden">
+<h3>Déroulement du contrôle</h3>
+<div class="grid">
+<div><label>Heure de repérage du véhicule</label><input id="heureReperage" type="time"></div>
+<div><label>Heure du contrôle</label><input id="heureControle" type="time"></div>
+<div class="full"><label>Véhicule contrôlé</label><input id="vehiculeControle" placeholder="Marque, modèle, couleur, immatriculation selon vos règles de saisie"></div>
+<div><label>Lieu du contrôle</label><input id="lieuControle"></div>
+<div><label>Motif initial</label><select id="motifControle"><option value="contrôle routier">Contrôle routier</option><option value="infraction au Code de la route constatée">Infraction constatée</option><option value="comportement du conducteur attirant notre attention">Comportement suspect</option><option value="véhicule correspondant à un signalement">Signalement</option></select></div>
+<div><label>Réaction du conducteur</label><select id="reactionConducteur"><option value="Le conducteur obtempérait immédiatement à nos injonctions.">Obtempère</option><option value="Le conducteur ralentissait puis immobilisait son véhicule en sécurité.">S’arrête après injonction</option><option value="Le conducteur refusait d'obtempérer à nos injonctions et poursuivait sa route.">Refus d’obtempérer</option></select></div>
+<div><label>Issue du véhicule</label><select id="issueVehicule"><option value="">Aucune mesure</option><option value="Le véhicule était immobilisé sur place.">Immobilisation</option><option value="Le véhicule faisait l'objet d'une mise en fourrière.">Fourrière</option><option value="Le véhicule était confié à un conducteur habilité.">Confié à un tiers habilité</option></select></div>
+<div><label>Résultat des vérifications</label><select id="resultatRoute"><option value="">À préciser dans le résumé</option><option value="Les vérifications administratives ne révélaient aucune anomalie.">Aucune anomalie</option><option value="Les vérifications révélaient que le conducteur n'était pas titulaire du permis de conduire requis.">Conduite sans permis</option><option value="Les vérifications révélaient que le permis de conduire de l'intéressé faisait l'objet d'une suspension.">Permis suspendu</option><option value="Les vérifications révélaient une absence d'assurance en cours de validité pour le véhicule.">Défaut d’assurance</option></select></div>
+<div class="full"><label>Références juridiques à insérer</label><div class="checks">
+<label class="check"><input type="checkbox" id="artR2331">Article R.233-1 du Code de la route — présentation des documents</label>
+<label class="check"><input type="checkbox" id="artL2212">Article L.221-2 du Code de la route — conduite sans permis</label>
+<label class="check"><input type="checkbox" id="artL3242">Article L.324-2 du Code de la route — défaut d’assurance</label>
+</div></div>
+</div>
+</div>
+</section>
+
+<section class="card">
+<h2>4. Interpellation, menottage et palpation</h2>
+<div class="checks">
+<label class="check"><input type="checkbox" id="interpelle">Un individu est interpellé</label>
+<label class="check"><input type="checkbox" id="menotte">L’individu est menotté</label>
+<label class="check"><input type="checkbox" id="palpation">Une palpation de sécurité est réalisée</label>
+<label class="check"><input type="checkbox" id="identite">L’individu est interrogé sur son identité</label>
+</div>
+
+<div id="interpellationFields" class="hidden">
+<h3>Interpellation</h3>
+<div class="grid">
+<div class="full"><label>Adresse exacte de l’interpellation</label><input id="lieuInterpellation"></div>
+<div><label>Heure de l’interpellation</label><input id="heureInterpellation" type="time"></div>
+<div><label>Personne interpellée</label><input value="F3" disabled></div>
+</div>
+</div>
+
+<div id="menottageFields" class="hidden">
+<h3>Menottage — article 803 CPP</h3>
+<div class="checks">
+<label class="check"><input type="checkbox" id="motifFuite">Risque de fuite</label>
+<label class="check"><input type="checkbox" id="motifDangerAutrui">Danger pour autrui</label>
+<label class="check"><input type="checkbox" id="motifDangerLui">Danger pour lui-même</label>
+</div>
+</div>
+
+<div id="palpationFields" class="hidden">
+<h3>Palpation de sécurité</h3>
+<div class="grid">
+<div><label>Résultat</label><select id="resultatPalp"><option value="negative">Aucun objet dangereux découvert</option><option value="positive">Objet découvert</option></select></div>
+<div><label>Objet découvert lors de la palpation</label><input id="objetPalp" placeholder="Ex. couteau, tournevis, produit..."></div>
+</div>
+</div>
+
+<div id="identityFields" class="hidden">
+<h3>Identité</h3>
+<div class="grid">
+<div><label>Document d’identité présenté</label><select id="documentIdentite"><option value="non">Non — identité déclarée</option><option value="oui">Oui — identité vérifiée</option></select></div>
+<div><label>Référence personne</label><input value="F3" disabled></div>
+</div>
+</div>
+</section>
+
+<section class="card">
+<h2>5. Victime, blessures, secours et préjudice</h2>
+<div class="checks">
+<label class="check"><input type="checkbox" id="victime">Présence d’une victime</label>
+<label class="check"><input type="checkbox" id="blesse">Victime blessée</label>
+<label class="check"><input type="checkbox" id="sp">Sapeurs-pompiers présents</label>
+<label class="check"><input type="checkbox" id="samu">SAMU présent</label>
+<label class="check"><input type="checkbox" id="prejudice">Préjudice matériel</label>
+<label class="check"><input type="checkbox" id="objetDelit">Objet du délit retrouvé / appréhendé</label>
+</div>
+
+<div id="victimeFields" class="hidden">
+<h3>Victime</h3>
+<div class="grid">
+<div><label>Référence victime</label><input value="F3" disabled></div>
+<div><label>Transportée</label><select id="victimeTransport"><option value="non">Non</option><option value="oui">Oui</option></select></div>
+<div class="full"><label>Établissement de destination</label><input id="destinationVictime" placeholder="Ex. CHI Robert-Ballanger"></div>
+<div class="full"><label>État / blessures apparentes</label><textarea id="blessures" placeholder="Ex. plaie au visage, douleurs déclarées, aucune lésion apparente..."></textarea></div>
+</div>
+</div>
+
+<div id="prejudiceFields" class="hidden">
+<h3>Préjudice</h3>
+<div class="grid">
+<div><label>Type</label><select id="typePrejudice"><option>Véhicule</option><option>Téléphone</option><option>Bijoux</option><option>Numéraire</option><option>Commerce</option><option>Habitation</option><option>Autre objet</option></select></div>
+<div><label>Montant estimé</label><input id="montantPrejudice" placeholder="Ex. 500 euros / non chiffré"></div>
+<div class="full"><label>Description du bien / dommage</label><textarea id="descriptionPrejudice"></textarea></div>
+</div>
+</div>
+
+<div id="objetFields" class="hidden">
+<h3>Objet du délit / objet dangereux</h3>
+<div class="grid">
+<div class="full"><label>Description de l’objet</label><input id="descriptionObjet"></div>
+<div><label>Présenté à l’individu</label><select id="objetRepresente"><option value="oui">Oui</option><option value="non">Non</option></select></div>
+<div><label>Remis à l’OPJ</label><select id="objetRemis"><option value="oui">Oui</option><option value="non">Non</option></select></div>
+</div>
+</div>
+</section>
+
+<section class="card">
+<h2>6. Avis OPJ et transport au service</h2>
+<div class="checks">
+<label class="check"><input type="checkbox" id="opjAvise" checked>OPJ avisé</label>
+<label class="check"><input type="checkbox" id="transportService" checked>Transport au service</label>
+<label class="check"><input type="checkbox" id="transportSansIncident" checked>Transport sans incident</label>
+<label class="check"><input type="checkbox" id="presentationOpj" checked>Présentation à l’OPJ</label>
+</div>
+<div class="grid" style="margin-top:11px">
+<div><label>Heure de l’avis à l’OPJ</label><input id="heureAvisOpj" type="time"></div>
+<div><label>Unité OPJ</label><input id="uniteOpj" value="BJN D4"></div>
+<div><label>Grade de l’OPJ</label><input id="gradeOpj" placeholder="Ex. capitaine de police"></div>
+<div><label>Nom de l’OPJ</label><input id="nomOpj" placeholder="Nom"></div>
+<div><label>Heure d’arrivée au service</label><input id="heureService" type="time"></div>
+<div class="full"><label>Instruction donnée par l’OPJ</label><select id="instructionOpj"><option value="presentation">Présenter l’individu interpellé</option><option value="pv">Rédiger le présent procès-verbal</option><option value="presentation_pv">Présenter l’individu puis rédiger le PV</option></select></div>
+</div>
+</section>
+
+<section class="card">
+<h2>7. Génération et contrôle</h2>
+<div class="mainActions">
+<button class="primary" id="generate">Générer le PV</button>
+<button class="secondary" id="validatePv">Contrôler les oublis</button>
+<button class="secondary" id="copy">Copier le texte</button>
+<button class="ok" id="saveSettings">Mémoriser indicatif et collègues</button>
+<button class="danger" id="reset">Nouveau PV</button>
+</div>
+</section>
+
+<section class="card hidden" id="validationCard">
+<h2>Points à vérifier</h2>
+<div id="validationResult" class="preview" style="min-height:80px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif"></div>
+</section>
+
+<section class="card">
+<h2>Procès-verbal généré</h2>
+<div id="preview" class="preview">Le procès-verbal apparaîtra ici.</div>
+<div class="small">Les mentions « F3 » sont volontairement conservées pour les personnes. Les séparateurs et formulations peuvent être ajustés dans une prochaine version selon votre trame exacte.</div>
+</section>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const val=id=>($(id)?.value||"").trim();
+const chk=id=>!!$(id)?.checked;
+let colleagueCount=0;
+
+const units=["zéro","une","deux","trois","quatre","cinq","six","sept","huit","neuf","dix","onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf"];
+function numberWords(n){
+ n=parseInt(n||0,10);
+ if(n<20)return units[n];
+ const tens=["","","vingt","trente","quarante","cinquante"];
+ if(n<60){const t=Math.floor(n/10),u=n%10;return tens[t]+(u===1?" et un":u?"-"+units[u]:"");}
+ return String(n);
+}
+function timeWords(t){
+ if(!t)return "";
+ const [h,m]=t.split(":").map(Number);
+ let hs=h===1?"une heure":numberWords(h)+" heures";
+ if(m===0)return hs;
+ return hs+" "+numberWords(m);
+}
+function normalTime(t){
+ return t ? t.replace(":"," h ") : "";
+}
+function fmtDate(d){
+ if(!d)return "";
+ const [y,m,day]=d.split("-");
+ return `${day}/${m}/${y}`;
+}
+function esc(s){return String(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function addColleague(data={}){
+ colleagueCount++;
+ const wrap=document.createElement("div");
+ wrap.className="colleague";
+ wrap.dataset.index=colleagueCount;
+ wrap.innerHTML=`<span class="pill">Collègue ${colleagueCount}</span><div class="grid">
+ <div><label>Grade</label><input class="colGrade" value="${esc(data.grade||"")}" placeholder="Ex. gardien de la paix"></div>
+ <div><label>Nom</label><input class="colName" value="${esc(data.name||"")}" placeholder="Nom"></div></div>`;
+ $("colleagues").appendChild(wrap);
+}
+function colleagues(){
+ return [...document.querySelectorAll(".colleague")].map(x=>({
+  grade:x.querySelector(".colGrade").value.trim(),
+  name:x.querySelector(".colName").value.trim()
+ })).filter(x=>x.grade||x.name);
+}
+function colleaguePhrase(){
+ const list=colleagues().map(x=>[x.grade,x.name].filter(Boolean).join(" "));
+ if(!list.length)return "Assisté du personnel du service,";
+ if(list.length===1)return `Assisté de ${list[0]}, du service,`;
+ return `Assisté de ${list.slice(0,-1).join(", ")} et de ${list.at(-1)}, du service,`;
+}
+function toggle(id,fields){$(fields).classList.toggle("hidden",!chk(id));}
+["interpelle","menotte","palpation","identite","victime","prejudice","objetDelit"].forEach(id=>{
+ $(id).addEventListener("change",()=>{
+  const map={interpelle:"interpellationFields",menotte:"menottageFields",palpation:"palpationFields",identite:"identityFields",victime:"victimeFields",prejudice:"prejudiceFields",objetDelit:"objetFields"};
+  toggle(id,map[id]);
+ });
+});
+$("blesse").addEventListener("change",()=>{if(chk("blesse")){$("victime").checked=true;toggle("victime","victimeFields");}});
+$("controleRoutier").addEventListener("change",()=>toggle("controleRoutier","roadFields"));
+$("addColleague").addEventListener("click",()=>addColleague());
+$("removeColleague").addEventListener("click",()=>{const all=[...document.querySelectorAll(".colleague")];if(all.length){all.at(-1).remove();colleagueCount--;}});
+function line(s,bold=false){return s?`<div>${bold?`<strong>${esc(s)}</strong>`:esc(s)}</div>`:"";}
+function generate(){
+ const cols=colleagues();
+ const total=cols.length+1;
+ let out="";
+ out+=line("—-En Service—-");
+ out+=line("—-Agissant conformément aux instructions reçues par Monsieur BRUNEAUX Pierrick, commandant divisionnaire fonctionnel, chef de circonscription de la commune de Gagny—-");
+ out+=line(`—-${colleaguePhrase()}—-`);
+ out+=line(`—-${total===1?"Tous deux":`Tous les ${numberWords(total)}`} porteurs des signes extérieurs distinctifs et apparents de notre qualité—-`);
+ out+="<br>";
+
+ const date=fmtDate(val("datePv"));
+ const introType=val("typePv")==="pvi"?"procès-verbal d'intervention":"procès-verbal de transport et constatations";
+ let intro=`Ce jour${date?", le "+date:""}, à ${normalTime(val("heureDebut"))||"l'heure indiquée"}, l'indicatif ${val("indicatif")||"[INDICATIF]"}, ${val("origine")}`;
+ if(val("lieuInitial"))intro+=` à ${val("lieuInitial")}`;
+ intro+=`, dans le cadre d'un "+introType+".";
+ out+=line(intro);
+ if(val("heureArrivee")) out+=line(`Arrivons sur les lieux à ${normalTime(val("heureArrivee"))}.`);
+ if(val("nature"))out+=line(`La mission concernait les faits de ${val("nature")}.`);
+ if(val("resume"))out+=line(val("resume"));
+
+ if(chk("controleRoutier")){
+  out+="<br>";
+  if(val("heureReperage")) out+=line(`À ${normalTime(val("heureReperage"))}, remarquons ${val("vehiculeControle")||"un véhicule"} dont ${val("motifControle")||"le comportement attire notre attention"}.`);
+  else out+=line(`Remarquons ${val("vehiculeControle")||"un véhicule"} dont ${val("motifControle")||"le comportement attire notre attention"}.`);
+  const signals=[];
+  if(chk("avertisseursLumineux")) signals.push("nos avertisseurs lumineux");
+  if(chk("avertisseursSonores")) signals.push("nos avertisseurs sonores");
+  if(signals.length) out+=line(`Actionnons ${signals.join(" ainsi que ")} afin d'enjoindre au conducteur de s'arrêter.`);
+  out+=line(val("reactionConducteur"));
+  if(chk("stationnementVehicule")) out+=line(`Faisons stationner le véhicule à ${val("lieuControle")||"un emplacement permettant de procéder au contrôle en sécurité"}${val("heureControle")?`, à ${normalTime(val("heureControle"))}`:""}.`);
+  if(chk("documentsConduite")){
+    out+=line("Invitons le conducteur à nous présenter les documents afférents à la conduite et à la mise en circulation du véhicule.");
+    if(chk("artR2331")) out+=line("Vu l'article R.233-1 du Code de la route relatif à la présentation des documents lors d'un contrôle routier.");
+  }
+  if(chk("verificationFichiers")) out+=line("Procédons aux vérifications administratives utiles concernant le conducteur et le véhicule.");
+  out+=line(val("resultatRoute"));
+  if(chk("artL2212")) out+=line("Vu l'article L.221-2 du Code de la route relatif à la conduite sans être titulaire du permis correspondant.");
+  if(chk("artL3242")) out+=line("Vu l'article L.324-2 du Code de la route relatif à la mise ou au maintien en circulation d'un véhicule sans assurance.");
+  out+=line(val("issueVehicule"));
+ }
+
+ if(val("flagrance")==="oui"){
+  out+="<br>";
+  out+=line("—-Dès lors, vu les faits—-",true);
+  out+=line("—-Vu les articles 53 et suivants du Code de procédure pénale—-",true);
+  out+=line("—-Agissant en matière de flagrant délit—-",true);
+ }
+
+ if(chk("interpelle")){
+  const tw=timeWords(val("heureInterpellation"));
+  const td=val("heureInterpellation")?val("heureInterpellation").replace(":"," h "):"";
+  out+="<br>";
+  out+=line(`Interpellons l'individu F3 à ${val("lieuInterpellation")||"[LIEU D'INTERPELLATION]"}, à ${tw||"[HEURE EN TOUTES LETTRES]"}${td?` (${td})`:""}.`);
+ }
+ if(chk("menotte")){
+  const reasons=[];
+  if(chk("motifFuite"))reasons.push("afin de prévenir toute tentative de fuite");
+  if(chk("motifDangerAutrui"))reasons.push("en raison du danger qu'il est susceptible de représenter pour autrui");
+  if(chk("motifDangerLui"))reasons.push("en raison du danger qu'il est susceptible de représenter pour lui-même");
+  out+=line(`Menottons l'individu, vu l'article 803 du Code de procédure pénale, ${reasons.length?reasons.join(" et "):"pour les motifs tenant à sa dangerosité ou au risque de fuite à préciser"}.`);
+ }
+ if(chk("palpation")){
+  if(val("resultatPalp")==="negative"){
+   out+=line("Procédons à une palpation de sécurité de l'individu, laquelle ne permet la découverte d'aucun objet dangereux pour lui-même ou pour autrui.");
+  }else{
+   out+=line(`Procédons à une palpation de sécurité de l'individu, laquelle permet la découverte de ${val("objetPalp")||"[OBJET À PRÉCISER]"}. Écartons immédiatement cet objet de sa portée.`);
+  }
+ }
+ if(chk("objetDelit")){
+  out+=line(`Constatons la présence de ${val("descriptionObjet")||"[OBJET DU DÉLIT]"}, écartons celui-ci de la portée de l'individu et l'appréhendons aux fins de remise à l'officier de police judiciaire.`);
+  if(val("objetRepresente")==="oui")out+=line("Représentons l'objet à l'individu F3, lequel est invité à formuler toute observation utile.");
+  if(val("objetRemis")==="oui")out+=line("Précisons que cet objet sera remis à l'officier de police judiciaire.");
+ }
+ if(chk("identite")){
+  if(val("documentIdentite")==="oui")out+=line("Interrogeons l'individu sur son identité, lequel nous présente un document permettant de vérifier qu'il s'agit de F3.");
+  else out+=line("Interrogeons l'individu sur son identité. Dépourvu de document d'identité, ce dernier nous déclare se nommer F3.");
+ }
+
+ if(chk("victime")){
+  out+="<br>";
+  out+=line("Prenons attache avec la victime F3.");
+  if(chk("blesse"))out+=line(`Constatons que la victime présente ou déclare les blessures suivantes : ${val("blessures")||"[BLESSURES À PRÉCISER]"}.`);
+  else out+=line("La victime ne présente pas de blessure apparente et ne déclare pas être blessée.");
+  if(chk("sp"))out+=line("Les sapeurs-pompiers sont requis et prennent en charge la victime.");
+  if(chk("samu"))out+=line("Le SAMU est requis et procède à l'évaluation médicale de la victime.");
+  if(val("victimeTransport")==="oui")out+=line(`La victime est transportée vers ${val("destinationVictime")||"[ÉTABLISSEMENT DE DESTINATION]"}.`);
+ }
+ if(chk("prejudice")){
+  out+=line(`Le préjudice déclaré porte sur ${val("typePrejudice").toLowerCase()} : ${val("descriptionPrejudice")||"[DESCRIPTION À PRÉCISER]"}.`);
+  if(val("montantPrejudice"))out+=line(`Le montant du préjudice est estimé à ${val("montantPrejudice")}.`);
+ }
+
+ if(chk("opjAvise")){
+  out+="<br>";
+  const avisTime=val("heureAvisOpj")?` à ${normalTime(val("heureAvisOpj"))}`:"";
+  out+=line(`Avisons${avisTime} l'officier de police judiciaire des faits, lequel nous demande de lui présenter l'individu interpellé.`);
+ }
+ if(chk("transportService")){
+  out+=line(`Transportons l'individu au service${chk("transportSansIncident")?" sans incident":"; les circonstances du transport sont précisées ci-dessus"}.`);
+ }
+ if(chk("presentationOpj")){
+  const opj=[val("gradeOpj"),val("nomOpj")].filter(Boolean).join(" ")||"[GRADE ET NOM DE L'OPJ]";
+  const arr=val("heureService")?` à ${normalTime(val("heureService"))}`:"";
+  out+=line(`Au service${arr}, présentons l'individu interpellé à l'officier de police judiciaire du ${val("uniteOpj")||"BJN D4"}, ${opj}.`);
+  const inst=val("instructionOpj");
+  if(inst==="pv")out+=line("Ce dernier nous demande la rédaction du présent procès-verbal.");
+  else if(inst==="presentation")out+=line("Ce dernier prend en charge l'individu conformément à ses attributions.");
+  else out+=line("Ce dernier prend en charge l'individu et nous demande la rédaction du présent procès-verbal.");
+ }
+ out+="<br>"+line("Dont procès-verbal.");
+ $("preview").innerHTML=out;
+}
+
+function validatePv(){
+ const issues=[];
+ if(!val("indicatif")) issues.push("Indicatif non renseigné.");
+ if(!val("heureDebut")) issues.push("Heure de début non renseignée.");
+ if(!val("lieuInitial")) issues.push("Lieu initial non renseigné.");
+ if(!val("resume")) issues.push("Résumé des faits vide.");
+ if(chk("controleRoutier")){
+   if(!val("vehiculeControle")) issues.push("Contrôle routier : véhicule non décrit.");
+   if(chk("stationnementVehicule") && !val("lieuControle")) issues.push("Contrôle routier : lieu de stationnement non renseigné.");
+   if(chk("artL2212") && !val("resultatRoute").includes("permis")) issues.push("Article L.221-2 coché mais la conduite sans permis n'est pas sélectionnée dans le résultat.");
+   if(chk("artL3242") && !val("resultatRoute").includes("assurance")) issues.push("Article L.324-2 coché mais le défaut d'assurance n'est pas sélectionné dans le résultat.");
+ }
+ if(chk("interpelle")){
+   if(!val("heureInterpellation")) issues.push("Interpellation : heure non renseignée.");
+   if(!val("lieuInterpellation")) issues.push("Interpellation : adresse non renseignée.");
+ }
+ if(chk("menotte") && !(chk("motifFuite")||chk("motifDangerAutrui")||chk("motifDangerLui"))) issues.push("Menottage : aucun motif de l'article 803 sélectionné.");
+ if(chk("palpation") && val("resultatPalp")==="positive" && !val("objetPalp")) issues.push("Palpation positive : objet découvert non décrit.");
+ if(chk("victime") && chk("blesse") && !val("blessures")) issues.push("Victime blessée : blessures non décrites.");
+ if(chk("victime") && val("victimeTransport")==="oui" && !val("destinationVictime")) issues.push("Victime transportée : établissement de destination non renseigné.");
+ if(chk("objetDelit") && !val("descriptionObjet")) issues.push("Objet du délit : description manquante.");
+ if(chk("opjAvise") && !val("heureAvisOpj")) issues.push("Avis OPJ : heure non renseignée.");
+ if(chk("presentationOpj") && (!val("gradeOpj") || !val("nomOpj"))) issues.push("Présentation OPJ : grade ou nom manquant.");
+ $("validationCard").classList.remove("hidden");
+ $("validationResult").innerHTML = issues.length
+   ? issues.map(x=>"• "+esc(x)).join("<br>")
+   : "Aucun oubli évident détecté. Une relecture juridique et factuelle reste indispensable.";
+}
+
+$("generate").addEventListener("click",generate);
+$("validatePv").addEventListener("click",validatePv);
+$("copy").addEventListener("click",async()=>{
+ const text=$("preview").innerText;
+ try{await navigator.clipboard.writeText(text);alert("PV copié.");}catch(e){alert("Copie automatique impossible. Sélectionne le texte manuellement.");}
+});
+$("saveSettings").addEventListener("click",()=>{
+ localStorage.setItem("pvSettings",JSON.stringify({indicatif:val("indicatif"),colleagues:colleagues()}));
+ alert("Indicatif et collègues mémorisés sur cet appareil.");
+});
+$("reset").addEventListener("click",()=>{
+ const saved=JSON.parse(localStorage.getItem("pvSettings")||"{}");
+ document.querySelectorAll("input:not([disabled]),textarea").forEach(e=>{if(e.type==="checkbox")e.checked=false;else e.value="";});
+ $("commune").value="Gagny";$("uniteOpj").value="BJN D4";$("opjAvise").checked=true;$("transportService").checked=true;$("transportSansIncident").checked=true;$("presentationOpj").checked=true;
+ $("indicatif").value=saved.indicatif||"";
+ $("colleagues").innerHTML="";colleagueCount=0;(saved.colleagues||[]).forEach(addColleague);if(!(saved.colleagues||[]).length)addColleague();
+ ["roadFields","interpellationFields","menottageFields","palpationFields","identityFields","victimeFields","prejudiceFields","objetFields","validationCard"].forEach(x=>$(x).classList.add("hidden"));
+ $("preview").textContent="Le procès-verbal apparaîtra ici.";
+});
+window.addEventListener("load",()=>{
+ const saved=JSON.parse(localStorage.getItem("pvSettings")||"{}");
+ $("indicatif").value=saved.indicatif||"";
+ (saved.colleagues||[]).forEach(addColleague);if(!(saved.colleagues||[]).length)addColleague();
+ const today=new Date();$("datePv").value=today.toISOString().slice(0,10);
+ if("serviceWorker" in navigator)navigator.serviceWorker.register("service-worker.js");
+});
+</script>
+</body>
+</html>
